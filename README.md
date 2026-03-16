@@ -1,10 +1,11 @@
-# bean_byte
+# Bean & Byte
 
-A new Flutter project.
+A new Flutter project for coffee cafes.
 
-## Getting Started
+## A Coffee Cafe App
 
 This project is a starting point for a Flutter application.
+It is build using Flutter , dart, Firebase(Authentication and firestore), Supabase(postgre database and bucket storage), Provider (Statemnagement Library), RazorPay (Payent gateway).
 
 A few resources to get you started if this is your first Flutter project:
 
