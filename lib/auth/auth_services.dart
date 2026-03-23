@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthServices {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<User?> login(String email, String pass) async {
     try {
@@ -39,13 +39,13 @@ class AuthServices {
   Future<User?> google_SignIn() async {
     try {
       if (kIsWeb) {
-        UserCredential _user = await _auth.signInWithPopup(
+        UserCredential user = await _auth.signInWithPopup(
           GoogleAuthProvider(),
         );
-        return _user.user;
+        return user.user;
       } else {
-        GoogleSignInAccount? _acc = await GoogleSignIn().signIn();
-        GoogleSignInAuthentication? googleAuth = await _acc?.authentication;
+        GoogleSignInAccount? acc = await GoogleSignIn().signIn();
+        GoogleSignInAuthentication? googleAuth = await acc?.authentication;
         final credentials = GoogleAuthProvider.credential(
           accessToken: googleAuth?.accessToken,
           idToken: googleAuth?.idToken,
@@ -55,6 +55,7 @@ class AuthServices {
     } on FirebaseAuthException catch (e) {
       throw Exception(e.code);
     }
+    return null;
   }
 
   Future<void> resetPassword(String email) async {

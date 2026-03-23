@@ -1,3 +1,5 @@
+import 'dart:io';
+
 enum UserRole { admin, customer, delivery }
 
 class UserModel {
@@ -8,7 +10,8 @@ class UserModel {
   DateTime createdAt;
   UserRole role = UserRole.customer;
   int? phone;
-  String? address = "";
+  String? address;
+  String? image;  
   List<dynamic> favouriteProducts;
   List<dynamic> currentOrders;
   List<dynamic> pastOrders;

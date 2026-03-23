@@ -73,7 +73,7 @@ class _ProductCardState extends State<ProductCard> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Lottie.asset("lotties/loader.json"),
+                        child: Lottie.asset("assets/lotties/loader.json"),
                       );
                     }
                   },
@@ -128,7 +128,7 @@ class _ProductCardState extends State<ProductCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "₹${widget.product.price}",
+                "₹${widget.product.price.toDouble()}",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

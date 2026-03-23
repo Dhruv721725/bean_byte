@@ -1,8 +1,6 @@
-import 'package:bean_byte/database/cart_provider.dart';
 import 'package:bean_byte/database/supabase_db.dart';
 import 'package:bean_byte/models/product_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class CartItem extends StatefulWidget {
   String prodId;
@@ -143,7 +141,7 @@ class _CartItemState extends State<CartItem> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "₹" + (prod.price * widget.quantity).toString(),
+                    "₹${prod.price * widget.quantity}",
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

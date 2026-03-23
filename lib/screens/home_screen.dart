@@ -19,9 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<ProductCategory> categories = [
     ProductCategory.coffee,
-    ProductCategory.tea,
     ProductCategory.pastry,
-    ProductCategory.juices,
   ];
   late ProductCategory selectedCategory;
 
@@ -38,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          "Product added to cart",
+          "Item added to cart",
           style: TextStyle(
             color: isDark ? Colors.white : Theme.of(context).primaryColor,
           ),
@@ -75,6 +73,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return products;
   }
 
+  Future<Widget> getUserImage() async {
+    return Image.network(
+      await SupabaseDb().getUserImg(widget.user.profilePicture),
+      fit: BoxFit.cover,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -93,15 +98,28 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       width: 40,
                       height: 40,
+                      padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: AppTheme.primaryColor.withAlpha(51),
                           width: 2,
                         ),
-                        image: DecorationImage(
-                          image: AssetImage("users/user.png"),
-                          fit: BoxFit.cover,
+                      ),
+                      child: ClipOval(
+                        child: FutureBuilder(
+                          future: getUserImage(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return snapshot.data!;
+                            }
+                            if (snapshot.hasError || snapshot.data == null) {
+                              return Image.asset("assets/users/user.png");
+                            }
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -177,6 +195,18 @@ class _HomeScreenState extends State<HomeScreen> {
             // Categories
             SliverToBoxAdapter(
               child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Text(
+                  "Categories",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 height: 36,
                 child: ListView.builder(
@@ -208,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return SliverToBoxAdapter(
                     child: Center(
                       child: Lottie.asset(
-                        'lotties/loader.json',
+                        'assets/lotties/loader.json',
                         height: 100,
                         width: 100,
                       ),

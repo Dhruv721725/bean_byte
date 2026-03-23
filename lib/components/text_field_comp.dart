@@ -8,7 +8,7 @@ class TextFieldComp extends StatefulWidget {
   TextEditingController controller;
   bool isPassword;
 
-  TextFieldComp({
+  TextFieldComp({super.key, 
     required this.prefixIcon,
     required this.labelText,
     required this.hintText,

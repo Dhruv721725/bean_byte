@@ -2,7 +2,6 @@ import 'package:bean_byte/auth/auth_services.dart';
 import 'package:bean_byte/components/alert_comp.dart';
 import 'package:bean_byte/components/button_comp.dart';
 import 'package:bean_byte/components/text_field_comp.dart';
-import 'package:bean_byte/database/supabase_db.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
@@ -100,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               // Header Part
               Lottie.asset(
-                'lotties/login_leady.json',
+                'assets/lotties/login_leady.json',
                 repeat: true,
                 animate: true,
                 fit: BoxFit.cover,

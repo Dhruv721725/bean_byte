@@ -24,7 +24,7 @@ class ProductModel {
       name: json['name'],
       description: json['description'],
       imageUrl: json['image'],
-      price: json['price'],
+      price: json['price'].toDouble(),
       category: json['category'],
     );
   }

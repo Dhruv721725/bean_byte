@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AlertComp extends StatelessWidget {
-  String message;
-  String title;
+  final String message;
+  final String title;
   AlertComp({super.key, required this.title, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        this.title,
+        title,
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,

@@ -1,4 +1,3 @@
-import 'package:bean_byte/database/cart_provider.dart';
 import 'package:bean_byte/database/supabase_db.dart';
 import 'package:bean_byte/models/user_model.dart';
 import 'package:bean_byte/screens/cart_screen.dart';
@@ -11,6 +10,8 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class NavigationScreen extends StatefulWidget {
+  const NavigationScreen({super.key});
+
   @override
   State<NavigationScreen> createState() => _NavigationScreenState();
 }
@@ -31,7 +32,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: Lottie.asset(
-                  "lotties/loader.json",
+                  "assets/lotties/loader.json",
                   width: 100,
                   height: 100,
                 ),
@@ -40,16 +41,19 @@ class _NavigationScreenState extends State<NavigationScreen> {
             if (snapshot.hasError) {
               return Center(child: Text(snapshot.error.toString()));
             }
-            final List<Widget> _screens = [
+            final List<Widget> screens = [
               HomeScreen(user: snapshot.data!),
               OrdersScreen(user: snapshot.data!),
               ChangeNotifierProvider(
                 create: (_) => CartProvider(),
                 child: CartScreen(user: snapshot.data!),
               ),
-              ProfileScreen(user: snapshot.data!),
+              ChangeNotifierProvider(
+                create: (_) => UserUpdate(),
+                child: ProfileScreen(user: snapshot.data!),
+              ),
             ];
-            return _screens[_currentIndex];
+            return screens[_currentIndex];
           },
         ),
         bottomNavigationBar: Container(

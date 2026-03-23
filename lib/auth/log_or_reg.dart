@@ -3,6 +3,8 @@ import 'package:bean_byte/screens/register_screen.dart';
 import 'package:flutter/widgets.dart';
 
 class LogOrReg extends StatefulWidget {
+  const LogOrReg({super.key});
+
   @override
   State<LogOrReg> createState() => _LogOrRegState();
 }

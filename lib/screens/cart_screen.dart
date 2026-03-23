@@ -1,11 +1,11 @@
-import 'package:bean_byte/components/button_comp.dart';
+import 'package:bean_byte/components/alert_comp.dart';
 import 'package:bean_byte/components/cart_item.dart';
-import 'package:bean_byte/database/cart_provider.dart';
+import 'package:bean_byte/components/check_out_card.dart';
 import 'package:bean_byte/database/supabase_db.dart';
+import 'package:bean_byte/models/order_model.dart';
 import 'package:bean_byte/models/user_model.dart';
-import 'package:bean_byte/themes/app_theme.dart';
+import 'package:bean_byte/payment/payment_gate.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class CartScreen extends StatefulWidget {
@@ -23,7 +23,43 @@ class _CartScreenState extends State<CartScreen> {
       widget.user,
       widget.user.cartProducts,
     );
+    setState(() {});
     Provider.of<CartProvider>(context, listen: false).refreshCheckOut();
+  }
+
+  Future<void> onOrder() async {
+    OrderModel order = OrderModel(
+      orderId: DateTime.now().millisecondsSinceEpoch.toString(),
+      userId: widget.user.uid,
+      paymentId: "",
+      products: widget.user.cartProducts,
+      price: await getSubTotal(),
+      status: OrderStatus.processing,
+      createdAt: DateTime.now(),
+    );
+
+    await PaymentGate(
+      context: context,
+      user: widget.user,
+      onSuccess: (String? payId) {
+        setState(() {
+          order.products = widget.user.cartProducts;
+          order.paymentId = payId;
+          order.status = OrderStatus.processing;
+          widget.user.cartProducts = {};
+        });
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertComp(
+              title: "Order Placed",
+              message: "Your order has been placed successfully!",
+            );
+          },
+        );
+        SupabaseDb().createOrder(widget.user, order);
+      },
+    ).initiatePayment(order.price);
   }
 
   void updateCartItem(String prodId, int quantity) async {
@@ -83,8 +119,11 @@ class _CartScreenState extends State<CartScreen> {
             ),
 
             // CheckOut Section:
-            CheckOutCard(getSubTotal: getSubTotal),
-            // CheckOutCard(getSubTotal: getSubTotal),
+            CheckOutCard(
+              getSubTotal: getSubTotal,
+              user: widget.user,
+              onOrder: onOrder,
+            ),
           ],
         ),
       ),
@@ -92,149 +131,8 @@ class _CartScreenState extends State<CartScreen> {
   }
 }
 
-class CheckOutCard extends StatefulWidget {
-  final Future<double> Function() getSubTotal;
-  const CheckOutCard({super.key, required this.getSubTotal});
-
-  @override
-  State<CheckOutCard> createState() => _CheckOutCardState();
-}
-
-class _CheckOutCardState extends State<CheckOutCard> {
-  @override
-  Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: isDark ? AppTheme.fieldDark : Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(isDark ? 80 : 15),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: Consumer<CartProvider>(
-          builder: (context, cartProvider, child) {
-            return FutureBuilder(
-              future: widget.getSubTotal(),
-              builder: (context, asyncSnapshot) {
-                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: Lottie.asset("lotties/loader.json"));
-                }
-                double subTotal = asyncSnapshot.data!;
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Subtotal",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          "₹${subTotal}",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Delivery Fee",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          "₹50",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Tax (5%)",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          "₹${subTotal * 5 / 100}",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Total",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          "₹${subTotal + subTotal * 5 / 100 + 50}",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    ButtonComp(
-                      label: "Checkout",
-                      onTap: () {
-                        print("placing order");
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
+class CartProvider extends ChangeNotifier {
+  void refreshCheckOut() {
+    notifyListeners();
   }
 }

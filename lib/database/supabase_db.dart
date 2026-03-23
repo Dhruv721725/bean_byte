@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:js_interop';
+import 'package:bean_byte/models/order_model.dart';
 import 'package:bean_byte/models/product_model.dart';
 import 'package:bean_byte/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,15 +19,13 @@ class SupabaseDb {
   }
 
   Future<String> getProductImage(String imagePath) async {
-    final response = await supabase.storage
-        .from('products')
-        .getPublicUrl(imagePath);
+    final response = supabase.storage.from('products').getPublicUrl(imagePath);
     return response.toString();
   }
 
   Future<ProductModel> getProduct(String prodId) async {
     final response = await supabase.from('products').select().eq('uid', prodId);
-    ProductModel prod = await ProductModel.fromJson(response[0]);
+    ProductModel prod = ProductModel.fromJson(response[0]);
     prod.imageUrl = await getProductImage(response[0]['image']);
     return prod;
   }
@@ -53,6 +51,7 @@ class SupabaseDb {
       "id": uid,
       "email": email,
       "name": name,
+      "cartprods": {},
     });
     return response;
   }
@@ -67,16 +66,36 @@ class SupabaseDb {
     await supabase
         .from("users")
         .update({
-          "uid": user.uid,
-          "email": user.email,
           "name": user.name,
           "profilepicture": user.profilePicture,
-          "favprods": user.favouriteProducts,
-          "currentorders": user.currentOrders,
-          "pastorders": user.pastOrders,
-          "cartprods": user.cartProducts,
+          "phone": user.phone,
+          "address": user.address,
+          "role": user.role.name,
         })
-        .eq("uid", user.uid);
+        .eq("id", user.uid);
+  }
+
+  Future<void> updateUserImg(UserModel user, File img) async {
+    try {
+      await supabase.storage
+          .from("users")
+          .upload(
+            "${user.uid}.png",
+            img,
+            fileOptions: const FileOptions(upsert: true),
+          );
+      await supabase
+          .from("users")
+          .update({"profilepicture": "${user.uid}.png"})
+          .eq("id", user.uid);
+    } catch (e) {
+      print("Upload Failed: $e");
+    }
+  }
+
+  Future<String> getUserImg(imagePath) async {
+    final response = supabase.storage.from('users').getPublicUrl(imagePath);
+    return response.toString();
   }
 
   // cart products
@@ -118,5 +137,40 @@ class SupabaseDb {
         .from("users")
         .update({"pastorders": pastOrders})
         .eq("id", user.uid);
+  }
+
+  // Order functionalities
+  Future<void> createOrder(UserModel user, OrderModel order) async {
+    await supabase.from("orders").insert({
+      "order_id": order.orderId,
+      "user_id": order.userId,
+      "products": order.products,
+      "price": order.price,
+      "status": order.status.name,
+      "created_at": order.createdAt?.toIso8601String(),
+      "payment_id": order.paymentId,
+    });
+    await updateCartProducts(user, {});
+
+    await updateCurrentOrders(user, user.currentOrders..add(order.toJson()));
+  }
+
+  Future<List<dynamic>> getOrders() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final response = (await supabase
+        .from("orders")
+        .select()
+        .eq("user_id", uid));
+    return response;
+  }
+
+  Future<void> cancelOrder(String orderId) async {
+    await supabase
+        .from("orders")
+        .update({
+          "status": OrderStatus.cancelled.name,
+          "completedAt": DateTime.now().toIso8601String(),
+        })
+        .eq("orderId", orderId);
   }
 }

@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-
+    if(!mounted) return;
     emailController.clear();
     passwordController.clear();
   }
@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               // Header Part
               Lottie.asset(
-                'lotties/login_leady.json',
+                'assets/lotties/login_leady.json',
                 repeat: true,
                 animate: true,
                 fit: BoxFit.cover,
@@ -141,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 8),
 
-              Container(
+              SizedBox(
                 width: double.maxFinite,
                 child: GestureDetector(
                   onTap: onForgotPassword,
@@ -167,6 +167,44 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 16),
 
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        thickness: 2,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withAlpha(150),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        "or continue with",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        thickness: 2,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withAlpha(150),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
               GestureDetector(
                 onTap: AuthServices().google_SignIn,
                 child: Container(
@@ -181,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  child: Image.asset('images/google_icon.png'),
+                  child: Image.asset('assets/images/google_icon.png'),
                 ),
               ),
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class OrdersScreen extends StatelessWidget {
   final UserModel user;
-  OrdersScreen({super.key, required this.user});
+  const OrdersScreen({super.key, required this.user});
   @override
   Widget build(BuildContext context) {
     return SafeArea(
