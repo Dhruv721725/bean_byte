@@ -3,13 +3,15 @@ import 'package:bean_byte/components/product_card.dart';
 import 'package:bean_byte/database/supabase_db.dart';
 import 'package:bean_byte/models/product_model.dart';
 import 'package:bean_byte/models/user_model.dart';
+import 'package:bean_byte/screens/profile_screen.dart';
 import 'package:bean_byte/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
   final UserModel user;
-  HomeScreen({super.key, required this.user});
+  final Function(int) onSwitchTap;
+  HomeScreen({super.key, required this.user, required this.onSwitchTap});
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -95,31 +97,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppTheme.primaryColor.withAlpha(51),
-                          width: 2,
+                    GestureDetector(
+                      onTap: () {
+                        widget.onSwitchTap(3);
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppTheme.primaryColor.withAlpha(51),
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: ClipOval(
-                        child: FutureBuilder(
-                          future: getUserImage(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return snapshot.data!;
-                            }
-                            if (snapshot.hasError || snapshot.data == null) {
-                              return Image.asset("assets/users/user.png");
-                            }
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
+                        child: ClipOval(
+                          child: FutureBuilder(
+                            future: getUserImage(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              }
+                              if (snapshot.hasError || snapshot.data == null) {
+                                return Image.asset("assets/users/user.png");
+                              }
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -135,36 +142,42 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 16),
                     Stack(
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppTheme.fieldDark,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.notifications_none,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
+                        GestureDetector(
+                          onTap: () {
+                            widget.onSwitchTap(2);
+                          },
                           child: Container(
-                            width: 8,
-                            height: 8,
+                            width: 40,
+                            height: 40,
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor,
+                              color: AppTheme.fieldDark,
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isDark
-                                    ? AppTheme.fieldDark
-                                    : Colors.white,
-                                width: 1.5,
-                              ),
+                            ),
+                            child: Icon(
+                              Icons.shopping_cart,
+                              color: AppTheme.primaryColor,
                             ),
                           ),
                         ),
+                        if (widget.user.cartProducts.isNotEmpty)
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isDark
+                                      ? AppTheme.fieldDark
+                                      : Colors.white,
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ],

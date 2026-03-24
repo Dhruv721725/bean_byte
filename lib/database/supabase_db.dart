@@ -119,23 +119,10 @@ class SupabaseDb {
         .eq("id", user.uid);
   }
 
-  Future<void> updateCurrentOrders(
-    UserModel user,
-    List<dynamic> currentOrders,
-  ) async {
+  Future<void> updateOrders(UserModel user) async {
     await supabase
         .from("users")
-        .update({"currentorders": currentOrders})
-        .eq("id", user.uid);
-  }
-
-  Future<void> updatePastOrders(
-    UserModel user,
-    List<dynamic> pastOrders,
-  ) async {
-    await supabase
-        .from("users")
-        .update({"pastorders": pastOrders})
+        .update({"orders": user.orders})
         .eq("id", user.uid);
   }
 
@@ -151,26 +138,27 @@ class SupabaseDb {
       "payment_id": order.paymentId,
     });
     await updateCartProducts(user, {});
-
-    await updateCurrentOrders(user, user.currentOrders..add(order.toJson()));
+    user.orders.add(order.orderId);
+    await updateOrders(user);
   }
 
-  Future<List<dynamic>> getOrders() async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+  Future<List<OrderModel>> getOrders(String userId) async {
     final response = (await supabase
         .from("orders")
         .select()
-        .eq("user_id", uid));
-    return response;
+        .eq("user_id", userId));
+    return response.map((e) => OrderModel.fromJson(e)).toList();
   }
 
-  Future<void> cancelOrder(String orderId) async {
+  Future<void> updateOrderStatus(String orderId, OrderStatus status) async {
     await supabase
         .from("orders")
         .update({
-          "status": OrderStatus.cancelled.name,
-          "completedAt": DateTime.now().toIso8601String(),
+          "status": status.name,
+          if (status == OrderStatus.completed ||
+              status == OrderStatus.cancelled)
+            "completed_at": DateTime.now().toIso8601String(),
         })
-        .eq("orderId", orderId);
+        .eq("order_id", orderId);
   }
 }

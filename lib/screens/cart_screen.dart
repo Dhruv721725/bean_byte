@@ -28,12 +28,17 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Future<void> onOrder() async {
+    double subTotal = await getSubTotal();
+    double tax = subTotal * 5 / 100;
+    double deliveryFee = 50;
+    double total = subTotal + tax + deliveryFee;
+
     OrderModel order = OrderModel(
       orderId: DateTime.now().millisecondsSinceEpoch.toString(),
       userId: widget.user.uid,
       paymentId: "",
       products: widget.user.cartProducts,
-      price: await getSubTotal(),
+      price: total,
       status: OrderStatus.processing,
       createdAt: DateTime.now(),
     );

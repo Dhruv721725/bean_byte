@@ -1,6 +1,5 @@
 import 'package:bean_byte/components/button_comp.dart';
 import 'package:bean_byte/models/user_model.dart';
-import 'package:bean_byte/payment/payment_gate.dart';
 import 'package:bean_byte/screens/cart_screen.dart';
 import 'package:bean_byte/themes/app_theme.dart';
 import 'package:flutter/foundation.dart';

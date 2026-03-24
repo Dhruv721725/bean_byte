@@ -11,10 +11,9 @@ class UserModel {
   UserRole role = UserRole.customer;
   int? phone;
   String? address;
-  String? image;  
+  String? image;
   List<dynamic> favouriteProducts;
-  List<dynamic> currentOrders;
-  List<dynamic> pastOrders;
+  List<dynamic> orders;
   Map<String, dynamic> cartProducts;
 
   UserModel({
@@ -27,8 +26,7 @@ class UserModel {
     required this.createdAt,
     required this.role,
     this.favouriteProducts = const [],
-    this.currentOrders = const [],
-    this.pastOrders = const [],
+    this.orders = const [],
     this.cartProducts = const {},
   });
 
@@ -58,8 +56,7 @@ class UserModel {
       createdAt: DateTime.parse(map["createdate"]),
       role: UserRole.values.firstWhere((e) => e.name == map["role"]),
       favouriteProducts: map["favprods"],
-      currentOrders: map["currentorders"],
-      pastOrders: map["pastorders"],
+      orders: map["orders"],
       cartProducts: map["cartprods"],
     );
   }

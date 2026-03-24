@@ -184,7 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     StatBadgeComp(
-                      value: widget.user.pastOrders.length.toString(),
+                      value: widget.user.orders.length.toString(),
                       label: "ORDERS",
                     ),
                     Container(

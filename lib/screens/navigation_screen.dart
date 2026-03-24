@@ -17,7 +17,7 @@ class NavigationScreen extends StatefulWidget {
 }
 
 class _NavigationScreenState extends State<NavigationScreen> {
-  int _currentIndex = 2;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
               return Center(child: Text(snapshot.error.toString()));
             }
             final List<Widget> screens = [
-              HomeScreen(user: snapshot.data!),
+              HomeScreen(
+                user: snapshot.data!,
+                onSwitchTap: (int index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
               OrdersScreen(user: snapshot.data!),
               ChangeNotifierProvider(
                 create: (_) => CartProvider(),

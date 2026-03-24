@@ -60,9 +60,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/app_icon.png"
+  image_path: "assets/images/bean&byte.png"
   adaptive_icon_background: "#121212"
-  adaptive_icon_foreground: "assets/images/app_icon.png"
+  adaptive_icon_foreground: "assets/images/bean&byte.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -80,7 +80,7 @@ flutter:
     - assets/lotties/loader.json
     - assets/images/google_icon.png
     - assets/lotties/login_leady.json
-    - assets/images/app_icon.png
+    - assets/images/bean&byte.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
