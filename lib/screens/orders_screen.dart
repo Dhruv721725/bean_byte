@@ -28,6 +28,47 @@ class _OrdersScreenState extends State<OrdersScreen> {
     _fetchOrders();
   }
 
+  void onCancel(String orderId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Cancel Order'),
+          content: Text('Are you sure you want to cancel this order?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                SupabaseDb().updateOrderStatus(orderId, OrderStatus.cancelled);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Order Cancelled')));
+                setState(() {
+                  _fetchOrders();
+                });
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void orderAgain(OrderModel order) {
+    widget.user.cartProducts.addAll(order.products);
+    SupabaseDb().updateCartProducts(widget.user, widget.user.cartProducts);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Order Added to Cart')));
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -39,10 +80,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        body: SingleChildScrollView(
+        body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Segmented Control
               Container(
@@ -110,88 +150,50 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              FutureBuilder(
-                future: _fetchOrders(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    snapshot.data!.sort(
-                      (a, b) => b.createdAt!.compareTo(a.createdAt!),
-                    );
-                    List<OrderModel> orders = _selectedTabIndex == 0
-                        ? snapshot.data!
-                              .where(
-                                (order) =>
-                                    order.status == OrderStatus.processing,
-                              )
-                              .toList()
-                        : snapshot.data!
-                              .where(
-                                (order) =>
-                                    order.status != OrderStatus.processing,
-                              )
-                              .toList();
-                    if (orders.isEmpty) {
-                      return Center(child: Text("No Active Orders"));
-                    }
 
-                    return Container(
-                      height: double.maxFinite,
-                      child: ListView.builder(
+              // orders list
+              const SizedBox(height: 16),
+              Expanded(
+                child: FutureBuilder(
+                  future: _fetchOrders(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      snapshot.data!.sort(
+                        (a, b) => b.createdAt!.compareTo(a.createdAt!),
+                      );
+                      List<OrderModel> activeOrders = [];
+                      List<OrderModel> pastOrders = [];
+
+                      for (var order in snapshot.data!) {
+                        if (order.status == OrderStatus.processing) {
+                          activeOrders.add(order);
+                        } else {
+                          pastOrders.add(order);
+                        }
+                      }
+
+                      List<OrderModel> orders = _selectedTabIndex == 0
+                          ? activeOrders
+                          : pastOrders;
+                      if (orders.isEmpty) {
+                        return Center(child: Text("No Active Orders"));
+                      }
+                      return ListView.builder(
                         itemCount: orders.length,
                         itemBuilder: (context, index) {
                           return OrderCard(
                             order: orders[index],
                             pickUp: widget.user.address!,
-                            onCancel: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text('Cancel Order'),
-                                    content: Text(
-                                      'Are you sure you want to cancel this order?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          SupabaseDb().updateOrderStatus(
-                                            orders[index].orderId,
-                                            OrderStatus.cancelled,
-                                          );
-                                          Navigator.pop(context);
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Order Cancelled'),
-                                            ),
-                                          );
-                                          setState(() {
-                                            _fetchOrders();
-                                          });
-                                        },
-                                        child: Text('Yes'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
+                            onCancel: () => onCancel(orders[index].orderId),
+                            orderAgain: () => orderAgain(orders[index]),
                           );
                         },
-                      ),
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
+                      );
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
               ),
             ],
           ),
@@ -200,12 +202,3 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 }
-// return ListView.builder(
-  // itemCount: snapshot.data!.length,
-  // itemBuilder: (context, index) {
-    // return ActiveOrderCard(
-      // order: snapshot.data![index],
-      // pickUp: widget.user.address!,
-    // );
-  // },
-// );

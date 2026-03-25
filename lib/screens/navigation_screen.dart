@@ -1,3 +1,4 @@
+import 'package:bean_byte/auth/auth_services.dart';
 import 'package:bean_byte/database/supabase_db.dart';
 import 'package:bean_byte/models/user_model.dart';
 import 'package:bean_byte/screens/cart_screen.dart';
@@ -22,12 +23,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
-    Future<UserModel> user = SupabaseDb().getUser();
+    Future<UserModel> getUser() async {
+      return await SupabaseDb().getUser();
+    }
 
     return SafeArea(
       child: Scaffold(
         body: FutureBuilder(
-          future: user,
+          future: getUser(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
@@ -39,7 +42,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
               );
             }
             if (snapshot.hasError) {
-              return Center(child: Text(snapshot.error.toString()));
+              print(snapshot.error.toString());
+              AuthServices().logout();
             }
             final List<Widget> screens = [
               HomeScreen(

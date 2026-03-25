@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:bean_byte/components/admin_control.dart';
 import 'package:bean_byte/components/detail_comp.dart';
 import 'package:bean_byte/components/stat_badge_comp.dart';
 import 'package:bean_byte/auth/auth_services.dart';
 import 'package:bean_byte/database/supabase_db.dart';
 import 'package:bean_byte/models/user_model.dart';
+import 'package:bean_byte/screens/order_manage_screen.dart';
 import 'package:bean_byte/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -65,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
-
+    bool isAdmin = widget.user.role.name == UserRole.admin.name;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -262,6 +264,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
 
+                    isAdmin
+                        ? Padding(
+                            padding: EdgeInsetsGeometry.only(
+                              left: 4,
+                              bottom: 12,
+                            ),
+                            child: Text(
+                              "ADMIN",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                          )
+                        : SizedBox(),
+                    isAdmin
+                        ? AdminControl(
+                            icon: Icons.admin_panel_settings,
+                            title: "Admin Panel",
+                            value: "Manage Orders",
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => OrderManageScreen(),
+                                ),
+                              );
+                            },
+                          )
+                        : SizedBox(),
+
                     const SizedBox(height: 32),
 
                     // Sign Out
@@ -298,7 +333,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         letterSpacing: 1.5,
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.3),
+                        ).colorScheme.onSurface.withAlpha(75),
                       ),
                     ),
                     const SizedBox(height: 48),

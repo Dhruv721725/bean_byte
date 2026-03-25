@@ -1,6 +1,7 @@
 import 'package:bean_byte/database/supabase_db.dart';
 import 'package:bean_byte/models/order_model.dart';
 import 'package:bean_byte/models/product_model.dart';
+import 'package:bean_byte/models/user_model.dart';
 import 'package:bean_byte/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -9,11 +10,13 @@ class OrderCard extends StatelessWidget {
   final OrderModel order;
   final String pickUp;
   final Function() onCancel;
+  final Function() orderAgain;
   const OrderCard({
     super.key,
     required this.order,
     required this.pickUp,
     required this.onCancel,
+    required this.orderAgain,
   });
 
   Future<Map<ProductModel, int>> _fetchOrderProducts() async {
@@ -28,7 +31,7 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 4),
+      margin: EdgeInsets.all(4),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceBright,
@@ -79,7 +82,9 @@ class OrderCard extends StatelessWidget {
             future: _fetchOrderProducts(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                double subtotal = 0;
                 List<Row> data = snapshot.data!.entries.map((e) {
+                  subtotal += e.key.price * e.value;
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -106,7 +111,7 @@ class OrderCard extends StatelessWidget {
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            "₹${order.price}",
+                            "₹${subtotal}",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -119,7 +124,7 @@ class OrderCard extends StatelessWidget {
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            "₹${order.price * 0.05}",
+                            "₹${subtotal * 0.05}",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -146,7 +151,7 @@ class OrderCard extends StatelessWidget {
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            "₹${(order.price * 1.05 + 50).toStringAsFixed(2)}",
+                            "₹${(subtotal * 1.05 + 50).toStringAsFixed(2)}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: AppTheme.primaryColor,
@@ -198,10 +203,24 @@ class OrderCard extends StatelessWidget {
             GestureDetector(
               onTap: onCancel,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Cancel", style: TextStyle(color: Colors.red)),
-                  Icon(Icons.delete_sweep_outlined, color: Colors.red),
+                  GestureDetector(
+                    onTap: () {
+                      orderAgain();
+                    },
+                    child: Text(
+                      "Add To Cart Again",
+                      style: TextStyle(color: AppTheme.primaryColor),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text("Cancel", style: TextStyle(color: Colors.red)),
+                      Icon(Icons.delete_sweep_outlined, color: Colors.red),
+                    ],
+                  ),
                 ],
               ),
             ),

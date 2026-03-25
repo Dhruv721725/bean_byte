@@ -46,20 +46,30 @@ class SupabaseDb {
   }
 
   // User functionalities
-  Future<dynamic> createUser(String uid, String name, String email) async {
-    final response = await supabase.from("users").insert({
+  Future<void> createUser(String uid, String name, String email) async {
+    await supabase.from("users").insert({
       "id": uid,
       "email": email,
       "name": name,
       "cartprods": {},
+      "profilepicture": "user.png",
+      "role": "customer",
+      "orders": [],
     });
-    return response;
   }
 
   Future<UserModel> getUser() async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final response = (await supabase.from("users").select().eq("id", uid))[0];
-    return UserModel.fromMap(Map<String, dynamic>.from(response));
+    final response = (await supabase.from("users").select().eq("id", uid));
+    if (response.isEmpty) {
+      await createUser(
+        uid,
+        FirebaseAuth.instance.currentUser!.displayName!,
+        FirebaseAuth.instance.currentUser!.email!,
+      );
+    }
+    UserModel user = UserModel.fromMap(Map<String, dynamic>.from(response[0]));
+    return user;
   }
 
   Future<void> updateUser(UserModel user) async {
