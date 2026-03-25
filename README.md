@@ -127,13 +127,6 @@ flutter run
 Contributions are welcome! Feel free to fork the repo and submit a pull request.
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
 ## 💡 Inspiration
 
 Bean & Byte is built with the idea of merging **technology + café culture**, creating a delightful digital experience for food lovers.
@@ -142,7 +135,7 @@ Bean & Byte is built with the idea of merging **technology + café culture**, cr
 
 ## 👨‍💻 Author
 
-**Dhruv**
+**Dhruv Gupta**
 
 ---
 
