@@ -1,0 +1,9 @@
+build/
+.dart_tool/
+.git/
+.gitignore
+.idea/
+.vscode/
+android/
+ios/
+*.log
